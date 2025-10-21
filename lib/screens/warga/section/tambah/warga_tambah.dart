@@ -121,9 +121,48 @@ class _WargaTambahState extends State<WargaTambah> {
             if (isLastStep) {
               _saveData();
             } else {
-              setState(() {
-                _currentStep += 1;
-              });
+              // Validate first step before proceeding to second step
+              if (_currentStep == 0) {
+                // Validate required fields in first step
+                bool isValid = true;
+                
+                // Check Nama Lengkap
+                if (_nameController.text.isEmpty) {
+                  isValid = false;
+                }
+                
+                // Check NIK
+                if (_nikController.text.isEmpty || _nikController.text.length != 16) {
+                  isValid = false;
+                }
+                
+                // Check Jenis Kelamin
+                if (_selectedGender == null || _selectedGender!.isEmpty) {
+                  isValid = false;
+                }
+                
+                if (isValid) {
+                  // All required fields are filled, proceed to next step
+                  setState(() {
+                    _currentStep += 1;
+                  });
+                } else {
+                  // Show error message and stay on current step
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Mohon lengkapi semua data yang diperlukan (Nama Lengkap, NIK, dan Jenis Kelamin)'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                  // Trigger validation to show individual field errors
+                  _formKey.currentState?.validate();
+                }
+              } else {
+                // For other steps, just proceed
+                setState(() {
+                  _currentStep += 1;
+                });
+              }
             }
           },
           onStepCancel: () {
